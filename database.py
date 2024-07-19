@@ -150,7 +150,15 @@ def get_students_by_group(group):
 def get_achievements_by_student(student_name):
     conn = sqlite3.connect('achievements.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT id, description, files, status, student_group, student_name FROM achievements WHERE student_name = ?', (student_name,))
+    cursor.execute('SELECT id, description, files, status, student_group, student_name FROM achievements WHERE student_name = ? AND status = ?', (student_name, 'Подтверждено'))
+    rows = cursor.fetchall()
+    conn.close()
+    return [Achievement.from_row(row) for row in rows]
+
+def get_achievements_by_group(group_number):
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, description, files, status, student_group, student_name FROM achievements WHERE student_group = ?', (group_number,))
     rows = cursor.fetchall()
     conn.close()
     return [Achievement.from_row(row) for row in rows]

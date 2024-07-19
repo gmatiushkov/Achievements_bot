@@ -55,11 +55,11 @@ async def login_password(message: types.Message, state: FSMContext):
             await message.answer("Добро пожаловать!", reply_markup=student_main_menu_markup)
     else:
         await AuthState.not_authorized.set()
-        await message.answer("Неверное ФИО или пароль. Пожалуйста, попробуйте снова.", reply_markup=auth_menu_markup)
+        await message.answer("❗️Неверное ФИО или пароль. Пожалуйста, попробуйте снова", reply_markup=auth_menu_markup)
 
 async def register_full_name(message: types.Message, state: FSMContext):
     if user_exists(message.text):
-        await message.answer("Пользователь с таким ФИО уже существует. Если вы забыли пароль, обратитесь к администратору.", reply_markup=back_to_auth_markup)
+        await message.answer("❗️Пользователь с таким ФИО уже существует. Если вы забыли пароль, обратитесь к администратору.", reply_markup=back_to_auth_markup)
         return
     await state.update_data(full_name=message.text)
     await Register.waiting_for_group_number.set()
@@ -78,7 +78,7 @@ async def register_password(message: types.Message, state: FSMContext):
 
     add_user(full_name, group_number, password)
     await AuthState.not_authorized.set()
-    await message.answer("Регистрация успешна! Пожалуйста, авторизуйтесь.", reply_markup=auth_menu_markup)
+    await message.answer("✅Регистрация успешна! Пожалуйста, авторизуйтесь.", reply_markup=auth_menu_markup)
 
 async def back_to_auth(callback_query: types.CallbackQuery, state: FSMContext):
     await AuthState.not_authorized.set()

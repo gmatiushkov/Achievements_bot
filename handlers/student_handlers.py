@@ -31,7 +31,10 @@ async def student_view_achievements(callback_query: types.CallbackQuery, state: 
     response = "Ваши достижения:\n\n"
     for idx, achievement in enumerate(achievements, start=1):
         status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {achievement.description[:50]}...\n"
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер достижения для подробного просмотра:", reply_markup=student_back_to_main_markup)
@@ -62,11 +65,11 @@ async def student_choose_achievement(message_or_callback: types.Message or types
                     await message.answer_document(file_id)
 
             status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-            response = f"{achievement.description}\n{achievement.status} {status_emoji}\n"
+            response = f"{achievement.description}\n\n{achievement.status} {status_emoji}\n"
             await message.answer(response, reply_markup=student_achievement_details_markup)
 
         except (ValueError, IndexError):
-            await message.answer("Неверный номер достижения. Пожалуйста, попробуйте снова.")
+            await message.answer("❗️Неверный номер достижения. Пожалуйста, попробуйте снова.")
             await display_achievements_list(message, state, achievements)
 
     elif isinstance(message_or_callback, types.CallbackQuery):
@@ -83,7 +86,10 @@ async def display_achievements_list(message: types.Message, state: FSMContext, a
     response = "Ваши достижения:\n\n"
     for idx, achievement in enumerate(achievements, start=1):
         status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {achievement.description[:50]}...\n"
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await message.answer(response)
     await message.answer("Введите номер достижения для подробного просмотра:", reply_markup=student_back_to_main_markup)
@@ -97,7 +103,7 @@ async def student_add_achievement(callback_query: types.CallbackQuery, state: FS
 async def student_save_description(message: types.Message, state: FSMContext):
     await state.update_data(description=message.text)
     await StudentState.waiting_for_files.set()
-    await message.answer("Теперь отправьте файлы, которые необходимо прикрепить к достижению. Когда закончите, нажмите 'Готово'.", reply_markup=student_waiting_files_markup)
+    await message.answer('Теперь отправьте файлы, которые необходимо прикрепить к достижению. Когда закончите, нажмите "Готово".', reply_markup=student_waiting_files_markup)
 
 async def student_upload_files(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
@@ -170,7 +176,10 @@ async def student_save_edited_description(message: types.Message, state: FSMCont
     response = "Ваши достижения:\n\n"
     for idx, achievement in enumerate(achievements, start=1):
         status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {achievement.description[:50]}...\n"
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await message.answer(response)
     await message.answer("Введите номер достижения для подробного просмотра:", reply_markup=student_back_to_main_markup)

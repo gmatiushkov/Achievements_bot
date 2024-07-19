@@ -32,7 +32,7 @@ async def admin_view_achievements_menu(callback_query: types.CallbackQuery, stat
 
     response = "Группы:\n\n"
     for idx, group in enumerate(groups, start=1):
-        response += f"{idx}. {group}\n"
+        response += f"{idx}. {group} \n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер группы:", reply_markup=admin_back_to_main_markup)
@@ -57,13 +57,13 @@ async def admin_choose_group(message: types.Message, state: FSMContext):
 
         response = f"Студенты группы {group}:\n\n"
         for idx, student in enumerate(students, start=1):
-            response += f"{idx}. {student}\n"
+            response += f"{idx}. {student} ( {len(get_achievements_by_student(student))}🏅)\n"
 
         await message.answer(response)
         await message.answer("Введите номер студента:", reply_markup=admin_back_to_groups_view_markup)
 
     except (ValueError, IndexError):
-        await message.answer("Неверный номер группы. Пожалуйста, попробуйте снова.")
+        await message.answer("❗️Неверный номер группы. Пожалуйста, попробуйте снова.")
         await display_groups_list(message, state)
 
 async def display_groups_list(message: types.Message, state: FSMContext):
@@ -97,28 +97,34 @@ async def admin_choose_student(message: types.Message, state: FSMContext):
             return
 
         response = f"Достижения студента {student}:\n\n"
-        for idx, ach in enumerate(student_achievements, start=1):
-            status_emoji = '🟢' if ach.status == 'Подтверждено' else '🟡' if ach.status == 'На рассмотрении' else '🔴'
-            response += f"{idx}. {status_emoji} {ach.description[:50]}...\n"
+        for idx, achievement in enumerate(student_achievements, start=1):
+            status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
+            description = achievement.description.strip().replace('\n', ' ')
+            if len(description) > 27:
+                description = description[:27] + '...'
+            response += f"{idx}. {status_emoji} {description}\n"
 
         await message.answer(response)
         await message.answer("Введите номер достижения:", reply_markup=admin_back_to_students_view_markup)
 
     except (ValueError, IndexError):
-        await message.answer("Неверный номер студента. Пожалуйста, попробуйте снова.")
+        await message.answer("❗️Неверный номер студента. Пожалуйста, попробуйте снова.")
         students = get_students_by_group(group)
         response = f"Студенты группы {group}:\n\n"
         for idx, student in enumerate(students, start=1):
-            response += f"{idx}. {student}\n"
+            response += f"{idx}. {student} ( {len(get_achievements_by_student(student))}🏅)\n"
         await message.answer(response)
         await message.answer("Введите номер студента:", reply_markup=admin_back_to_groups_view_markup)
         await AdminState.waiting_for_student_choice.set()
 
 async def display_achievements_list(message: types.Message, state: FSMContext, achievements):
-    response = "Достижения студента:\n\n"
-    for idx, achievement in enumerate(achievements, start=1):
+    response = f"Достижения студента {student}:\n\n"
+    for idx, achievement in enumerate(student_achievements, start=1):
         status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {achievement.description[:50]}...\n"
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await message.answer(response)
     await message.answer("Введите номер достижения для подробного просмотра:", reply_markup=admin_back_to_students_view_markup)
@@ -148,11 +154,11 @@ async def admin_choose_achievement(message_or_callback: types.Message or types.C
                     await message.answer_document(file_id)
 
             status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
-            response = f"{achievement.description}\n{achievement.status} {status_emoji}\n"
+            response = f"{achievement.description}\n\n{achievement.status} {status_emoji}\n"
             await message.answer(response, reply_markup=admin_achievement_details_markup)
 
         except (ValueError, IndexError):
-            await message.answer("Неверный номер достижения. Пожалуйста, попробуйте снова.")
+            await message.answer("❗️Неверный номер достижения. Пожалуйста, попробуйте снова.")
             await display_achievements_list(message, state, achievements)
 
     elif isinstance(message_or_callback, types.CallbackQuery):
@@ -179,7 +185,7 @@ async def admin_back_to_students_view(callback_query: types.CallbackQuery, state
 
     response = f"Студенты группы {group}:\n\n"
     for idx, student in enumerate(students, start=1):
-        response += f"{idx}. {student}\n"
+        response += f"{idx}. {student} ( {len(get_achievements_by_student(student))}🏅)\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер студента:", reply_markup=admin_back_to_groups_view_markup)
@@ -191,9 +197,12 @@ async def admin_back_to_achievements_view(callback_query: types.CallbackQuery, s
     student_achievements = get_achievements_by_student(student)
 
     response = f"Достижения студента {student}:\n\n"
-    for idx, ach in enumerate(student_achievements, start=1):
-        status_emoji = '🟢' if ach.status == 'Подтверждено' else '🟡' if ach.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {ach.description[:50]}...\n"
+    for idx, achievement in enumerate(student_achievements, start=1):
+        status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер достижения:", reply_markup=admin_back_to_students_view_markup)
@@ -207,7 +216,10 @@ async def admin_back_to_approve_achievements_view(callback_query: types.Callback
 
     response = "Достижения на рассмотрении:\n\n"
     for idx, ach in enumerate(pending_achievements, start=1):
-        response += f"{idx}. {ach.description[:50]}...\n"
+        description = ach.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {description}\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер достижения для подробного просмотра:", reply_markup=admin_back_to_main_markup)
@@ -286,9 +298,12 @@ async def admin_delete_achievement(callback_query: types.CallbackQuery, state: F
 
     # Отобразить обновленный список достижений
     response = f"Достижения студента {student}:\n\n"
-    for idx, ach in enumerate(student_achievements, start=1):
-        status_emoji = '🟢' if ach.status == 'Подтверждено' else '🟡' if ach.status == 'На рассмотрении' else '🔴'
-        response += f"{idx}. {status_emoji} {ach.description[:50]}...\n"
+    for idx, achievement in enumerate(student_achievements, start=1):
+        status_emoji = '🟢' if achievement.status == 'Подтверждено' else '🟡' if achievement.status == 'На рассмотрении' else '🔴'
+        description = achievement.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {status_emoji} {description}\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер достижения для подробного просмотра:",
@@ -304,7 +319,10 @@ async def admin_approve_achievements_menu(callback_query: types.CallbackQuery, s
 
     response = "Достижения на рассмотрении:\n\n"
     for idx, ach in enumerate(pending_achievements, start=1):
-        response += f"{idx}. {ach.description[:50]}...\n"
+        description = ach.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {description}\n"
 
     await callback_query.message.answer(response)
     await callback_query.message.answer("Введите номер достижения для подробного просмотра:", reply_markup=admin_back_to_main_markup)
@@ -329,18 +347,22 @@ async def admin_choose_pending_achievement(message: types.Message, state: FSMCon
             elif file_type == 'document':
                 await message.answer_document(file_id)
 
-        response = f"{achievement.description}\nНа рассмотрении 🟡\n"
+        response = f"Группа: {achievement.student_group}\n\n{achievement.student_name}\n\n{achievement.description}\n"
         await message.answer(response, reply_markup=admin_approve_achievement_details_markup)
 
     except (ValueError, IndexError):
-        await message.answer("Неверный номер достижения. Пожалуйста, попробуйте снова.")
+        await message.answer("❗️Неверный номер достижения. Пожалуйста, попробуйте снова.")
         await display_pending_achievements_list(message)
+
 
 async def display_pending_achievements_list(message: types.Message):
     pending_achievements = get_pending_achievements()
     response = "Достижения на рассмотрении:\n\n"
     for idx, ach in enumerate(pending_achievements, start=1):
-        response += f"{idx}. {ach.description[:50]}...\n"
+        description = ach.description.strip().replace('\n', ' ')
+        if len(description) > 27:
+            description = description[:27] + '...'
+        response += f"{idx}. {description}\n"
 
     await message.answer(response)
     await message.answer("Введите номер достижения для подробного просмотра:", reply_markup=admin_back_to_main_markup)
