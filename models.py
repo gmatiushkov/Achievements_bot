@@ -2,7 +2,7 @@ class Achievement:
     def __init__(self, id: int, description: str, files: list, status: str, student_group: str, student_name: str):
         self.id = id
         self.description = description
-        self.files = files
+        self.files = files  # List of tuples (file_type, file_id)
         self.status = status
         self.student_group = student_group
         self.student_name = student_name
@@ -22,6 +22,7 @@ class Achievement:
             'student_group': self.student_group,
             'student_name': self.student_name
         }
+
 
 
 class User:

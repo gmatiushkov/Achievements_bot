@@ -7,6 +7,8 @@ from database import add_user, get_user, user_exists
 from keyboards import auth_menu_markup, back_to_auth_markup, student_main_menu_markup, admin_main_menu_markup
 from config import ADMINS_FULLNAMES
 
+from handlers.student_handlers import StudentState
+
 class AuthState(StatesGroup):
     not_authorized = State()
 
@@ -43,10 +45,12 @@ async def login_password(message: types.Message, state: FSMContext):
 
     user = get_user(full_name, password)
     if user:
-        await state.finish()
+        await state.update_data(full_name=full_name, group_number=user.group_number)
         if full_name in ADMINS_FULLNAMES:
+            await state.finish()
             await message.answer("Добро пожаловать, администратор!", reply_markup=admin_main_menu_markup)
         else:
+            await StudentState.main_menu.set()
             await message.answer("Добро пожаловать!", reply_markup=student_main_menu_markup)
     else:
         await AuthState.not_authorized.set()
@@ -79,7 +83,7 @@ async def back_to_auth(callback_query: types.CallbackQuery, state: FSMContext):
     await AuthState.not_authorized.set()
     await callback_query.message.answer("Вы вернулись в главное меню аутентификации.", reply_markup=auth_menu_markup)
 
-def register_auth_handlers(dp: Dispatcher, bot: Bot):
+def register_auth_handlers(dp: Dispatcher):
     dp.register_message_handler(start_command, commands="start", state="*")
     dp.register_callback_query_handler(auth_menu, state=AuthState.not_authorized)
     dp.register_message_handler(login_full_name, state=Login.waiting_for_full_name)

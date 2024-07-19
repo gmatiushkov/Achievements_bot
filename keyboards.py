@@ -87,18 +87,18 @@ student_achievement_details_markup.add(
     InlineKeyboardButton("❌ Удалить", callback_data='student_delete_achievement'),
     InlineKeyboardButton("✏️ Редактировать описание", callback_data='student_edit_description_achievement'),
     InlineKeyboardButton("📎 Редактировать файлы", callback_data='student_edit_files_achievement'),
-    InlineKeyboardButton("⬅️ Назад", callback_data='student_back_to_achievements_view')
+    InlineKeyboardButton("⬅️ Назад", callback_data='student_view_achievements')
 )
 
 # Student Back to Achievement Details Menu
 student_back_to_achievement_details_markup = InlineKeyboardMarkup(row_width=1)
 student_back_to_achievement_details_markup.add(
-    InlineKeyboardButton("⬅️ Назад", callback_data='student_back_to_achievement_details')
+    InlineKeyboardButton("⬅️ Назад", callback_data='student_back_to_achievement_choice')
 )
 
 # Student Edit Files Loaded Menu
-student_edit_files_loaded_markup = InlineKeyboardMarkup(row_width=1)
-student_edit_files_loaded_markup.add(
+student_edit_waiting_files_markup = InlineKeyboardMarkup(row_width=1)
+student_edit_waiting_files_markup.add(
     InlineKeyboardButton("✅ Готово", callback_data='student_edit_files_loaded'),
-    InlineKeyboardButton("⬅️ Назад", callback_data='student_back_to_achievement_details')
+    InlineKeyboardButton("⬅️ Назад", callback_data='student_back_to_achievement_choice')
 )

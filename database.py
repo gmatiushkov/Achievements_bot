@@ -114,3 +114,18 @@ def user_exists(full_name):
     row = cursor.fetchone()
     conn.close()
     return row is not None
+
+def update_achievement_description(achievement_id, new_description):
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    cursor.execute('UPDATE achievements SET description = ? WHERE id = ?', (new_description, achievement_id))
+    conn.commit()
+    conn.close()
+
+def update_achievement_files(achievement_id, files):
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    files_str = ','.join([f"{ft}:{fid}" for ft, fid in files])
+    cursor.execute('UPDATE achievements SET files = ? WHERE id = ?', (files_str, achievement_id))
+    conn.commit()
+    conn.close()
