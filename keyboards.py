@@ -42,8 +42,6 @@ admin_back_to_students_view_markup.add(
 admin_achievement_details_markup = InlineKeyboardMarkup(row_width=1)
 admin_achievement_details_markup.add(
     InlineKeyboardButton("❌ Удалить", callback_data='admin_delete_achievement'),
-    InlineKeyboardButton("✏️ Редактировать описание", callback_data='admin_edit_description_achievement'),
-    InlineKeyboardButton("📎 Редактировать файлы", callback_data='admin_edit_files_achievement'),
     InlineKeyboardButton("⬅️ Назад", callback_data='admin_back_to_achievements_view')
 )
 

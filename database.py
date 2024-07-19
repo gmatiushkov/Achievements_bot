@@ -129,3 +129,28 @@ def update_achievement_files(achievement_id, files):
     cursor.execute('UPDATE achievements SET files = ? WHERE id = ?', (files_str, achievement_id))
     conn.commit()
     conn.close()
+
+
+def get_all_group_numbers():
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT student_group FROM achievements')
+    rows = cursor.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+def get_students_by_group(group):
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT student_name FROM achievements WHERE student_group = ?', (group,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+def get_achievements_by_student(student_name):
+    conn = sqlite3.connect('achievements.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, description, files, status, student_group, student_name FROM achievements WHERE student_name = ?', (student_name,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [Achievement.from_row(row) for row in rows]

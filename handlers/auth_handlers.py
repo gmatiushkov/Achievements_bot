@@ -8,6 +8,7 @@ from keyboards import auth_menu_markup, back_to_auth_markup, student_main_menu_m
 from config import ADMINS_FULLNAMES
 
 from handlers.student_handlers import StudentState
+from handlers.admin_handlers import AdminState
 
 class AuthState(StatesGroup):
     not_authorized = State()
@@ -47,7 +48,7 @@ async def login_password(message: types.Message, state: FSMContext):
     if user:
         await state.update_data(full_name=full_name, group_number=user.group_number)
         if full_name in ADMINS_FULLNAMES:
-            await state.finish()
+            await AdminState.main_menu.set()
             await message.answer("Добро пожаловать, администратор!", reply_markup=admin_main_menu_markup)
         else:
             await StudentState.main_menu.set()
